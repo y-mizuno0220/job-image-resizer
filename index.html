@@ -497,22 +497,30 @@
   }
 
   async function loadImage(file) {
-    // Prefer createImageBitmap — decodes more formats and is more forgiving
-    // of unusual JPEG headers than the Image element
+    // Image要素 + decode()を優先：EXIF・カラープロファイル対応が最も安定
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        URL.revokeObjectURL(url);
+        return img;
+      }
+    } catch (_) {
+      // Image要素で失敗した場合は次へ
+    }
+    URL.revokeObjectURL(url);
+
+    // createImageBitmapへフォールバック：変わったJPEGヘッダに強い
     if (typeof createImageBitmap === 'function') {
       try {
-        return await createImageBitmap(file);
-      } catch (_) {
-        // Fall through to Image element fallback
-      }
+        const bitmap = await createImageBitmap(file);
+        if (bitmap.width > 0 && bitmap.height > 0) return bitmap;
+      } catch (_) {}
     }
-    return new Promise((res, rej) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => { URL.revokeObjectURL(url); res(img); };
-      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('画像を読み込めません')); };
-      img.src = url;
-    });
+
+    throw new Error('画像を読み込めません');
   }
 
   function canvasToBlob(canvas, mime, quality) {
