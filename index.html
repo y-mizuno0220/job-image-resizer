@@ -3,23 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>求人画像リサイザー</title>
+<title>クジラサイズ｜画像リサイザー</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
-    --paper: #FAFAF7;
-    --ink: #1A1A1A;
-    --muted: #7A7A72;
-    --rule: #E5E3DC;
-    --accent: #2C5F4E;
-    --accent-hover: #1F4638;
-    --warn: #B84A2F;
+    --paper: #FAF7F1;
     --card: #FFFFFF;
+    --ink: #1F3548;
+    --muted: #7A93A5;
+    --rule: #E8E4DA;
+    --ocean: #3B7CB5;
+    --ocean-hover: #2C6193;
+    --ocean-tint: #EDF3F8;
+    --crown: #F4C946;
+    --warn: #D97757;
     --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
-    --serif: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", serif;
-    --sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Segoe UI", sans-serif;
+    --sans: "M PLUS Rounded 1c", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Segoe UI", sans-serif;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow-soft: 0 2px 8px rgba(31, 53, 72, 0.06);
+    --shadow-hover: 0 8px 20px rgba(31, 53, 72, 0.10);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,156 +36,180 @@
     background: var(--paper);
     color: var(--ink);
     font-family: var(--sans);
+    font-weight: 400;
     line-height: 1.5;
     min-height: 100vh;
-    padding: 32px 24px 40px;
+    padding: 40px 24px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .container { max-width: 800px; margin: 0 auto; }
+  .container { max-width: 720px; margin: 0 auto; }
 
+  /* Header */
   .header {
-    border-top: 2px solid var(--ink);
-    padding-top: 20px;
-    margin-bottom: 40px;
-  }
-
-  .header h1 {
-    font-family: var(--serif);
-    font-size: 32px;
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    margin-bottom: 24px;
-  }
-
-  .spec-grid {
-    display: grid;
-    grid-template-columns: auto 1fr auto 1fr;
-    gap: 12px 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--rule);
-    font-family: var(--mono);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .spec-label { color: var(--muted); }
-  .spec-value { color: var(--ink); font-weight: 500; }
-
-  .spec-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px dashed var(--rule);
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink);
-    font-weight: 500;
-    padding: 2px 4px;
-    width: 52px;
     text-align: center;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: border-color 120ms ease, background 120ms ease;
-  }
-  .spec-input-wide { width: 68px; }
-  .spec-input:focus {
-    outline: none;
-    border-bottom-color: var(--accent);
-    background: rgba(44, 95, 78, 0.05);
-  }
-  .spec-input::-webkit-outer-spin-button,
-  .spec-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .spec-input[type=number] { -moz-appearance: textfield; }
-
-  .spec-select {
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px dashed var(--rule);
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink);
-    font-weight: 500;
-    padding: 2px 18px 2px 4px;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%237A7A72' d='M4 6L0 0h8z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    transition: border-color 120ms ease, background-color 120ms ease;
-  }
-  .spec-select:focus {
-    outline: none;
-    border-bottom-color: var(--accent);
-    background-color: rgba(44, 95, 78, 0.05);
+    margin-bottom: 28px;
   }
 
-  .dropzone {
-    display: block;
-    border: 2px dashed var(--rule);
-    border-radius: 4px;
-    padding: 60px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 150ms ease;
-    background: var(--card);
-    margin-bottom: 32px;
-  }
-
-  .dropzone:hover, .dropzone.dragover {
-    border-color: var(--accent);
-    background: rgba(44, 95, 78, 0.03);
-  }
-
-  .dropzone-icon {
-    font-family: var(--serif);
-    font-size: 44px;
-    color: var(--muted);
-    margin-bottom: 12px;
-    line-height: 1;
-  }
-
-  .dropzone-text {
-    font-size: 16px;
+  .brand-name {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     color: var(--ink);
     margin-bottom: 6px;
   }
 
-  .dropzone-hint {
-    font-size: 12px;
+  .brand-name .accent { color: var(--ocean); }
+
+  .tagline {
     color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 0.05em;
+    font-size: 13px;
   }
 
+  /* Settings */
+  .settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    background: var(--card);
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .setting { display: flex; flex-direction: column; gap: 7px; }
+
+  .setting-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  .setting-input { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .num-input, .select-input {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    width: 56px;
+    text-align: center;
+    transition: all 120ms ease;
+  }
+
+  .num-input-wide { width: 76px; }
+
+  .select-input {
+    width: auto;
+    font-family: var(--sans);
+    padding-right: 30px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%237A93A5' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  .num-input:focus, .select-input:focus {
+    outline: none;
+    border-color: var(--ocean);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 124, 181, 0.12);
+  }
+
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .num-input[type=number] { -moz-appearance: textfield; }
+
+  .unit { font-size: 12px; color: var(--muted); }
+  .mult { font-size: 13px; color: var(--muted); font-family: var(--mono); }
+
+  /* Dropzone */
+  .dropzone {
+    display: block;
+    background: var(--card);
+    border: 2px dashed var(--rule);
+    border-radius: 20px;
+    padding: 40px 20px 34px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 200ms ease;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+  }
+
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--ocean);
+    background: var(--ocean-tint);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .dropzone:hover .whale, .dropzone.dragover .whale {
+    transform: translateY(-4px) scale(1.04) rotate(-3deg);
+  }
+
+  .whale {
+    width: 220px;
+    height: auto;
+    display: block;
+    margin: 0 auto 18px;
+    transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+
+  .drop-primary {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .drop-hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Results */
   .results-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding-bottom: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--rule);
     flex-wrap: wrap;
     gap: 12px;
   }
 
   .results-count {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-size: 14px;
     color: var(--muted);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
   }
 
   .results-count strong {
-    color: var(--ink);
-    font-size: 16px;
-    margin: 0 4px;
+    color: var(--ocean);
+    font-size: 22px;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1;
   }
 
   .actions { display: flex; gap: 8px; }
@@ -185,42 +217,51 @@
   .btn {
     font-family: var(--sans);
     font-size: 13px;
-    padding: 8px 16px;
+    font-weight: 500;
+    padding: 9px 18px;
     border: 1px solid var(--rule);
     background: var(--card);
     color: var(--ink);
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     transition: all 120ms ease;
   }
-  .btn:hover { border-color: var(--ink); }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-  .btn-primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-  }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .items { display: flex; flex-direction: column; }
+  .btn:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+  .btn-primary {
+    background: var(--ocean);
+    color: white;
+    border-color: var(--ocean);
+    box-shadow: 0 2px 6px rgba(59, 124, 181, 0.30);
+  }
+
+  .btn-primary:hover {
+    background: var(--ocean-hover);
+    border-color: var(--ocean-hover);
+  }
+
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Items */
+  .items { display: flex; flex-direction: column; gap: 10px; }
 
   .item {
     display: grid;
     grid-template-columns: 80px 1fr auto;
     gap: 16px;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--rule);
+    padding: 14px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
     align-items: center;
+    box-shadow: var(--shadow-soft);
   }
 
   .item-thumb {
     width: 80px;
     height: 60px;
-    background: var(--rule);
-    border-radius: 2px;
+    background: var(--paper);
+    border-radius: 6px;
     object-fit: cover;
     display: block;
   }
@@ -248,58 +289,70 @@
   }
 
   .item-stats .arrow { color: var(--muted); }
-  .item-stats .new-size { color: var(--accent); font-weight: 500; }
+  .item-stats .new-size { color: var(--ocean); font-weight: 600; }
   .item-stats .new-size.warn { color: var(--warn); }
-  .item-stats .quality { color: var(--muted); margin-left: 4px; }
+  .item-stats .quality { color: var(--muted); }
 
   .item-actions { display: flex; gap: 4px; }
 
   .item-status {
-    font-family: var(--mono);
     font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--muted);
-    padding: 4px 8px;
+    padding: 5px 12px;
     border: 1px solid var(--rule);
-    border-radius: 2px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
-  .item-status.processing { color: var(--accent); border-color: var(--accent); }
+  .item-status.processing { color: var(--ocean); border-color: var(--ocean); }
   .item-status.error { color: var(--warn); border-color: var(--warn); }
 
   .btn-download {
-    padding: 6px 12px;
+    padding: 6px 16px;
     font-size: 11px;
     font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: var(--ink);
     background: transparent;
     border: 1px solid var(--ink);
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 999px;
     transition: all 120ms ease;
+    font-weight: 600;
   }
+
   .btn-download:hover { background: var(--ink); color: var(--paper); }
 
+  /* Footer */
   .footer {
-    margin-top: 60px;
+    margin-top: 44px;
     padding-top: 20px;
     border-top: 1px solid var(--rule);
-    font-family: var(--mono);
-    font-size: 11px;
+    font-size: 12px;
     color: var(--muted);
     text-align: center;
-    letter-spacing: 0.05em;
+  }
+
+  .footer .crown-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--crown);
+    margin: 0 8px;
+    vertical-align: middle;
   }
 
   input[type="file"] { display: none; }
 
+  /* Mobile */
   @media (max-width: 600px) {
-    body { padding: 24px 16px 40px; }
-    .header h1 { font-size: 24px; }
-    .spec-grid { grid-template-columns: auto 1fr; gap: 10px 20px; }
-    .dropzone { padding: 40px 16px; }
+    body { padding: 24px 16px; }
+    .brand-name { font-size: 24px; }
+    .settings { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
+    .whale { width: 170px; }
+    .dropzone { padding: 32px 16px 26px; }
     .item { grid-template-columns: 60px 1fr; gap: 12px; }
     .item-thumb { width: 60px; height: 45px; }
     .item-actions {
@@ -313,41 +366,50 @@
 <body>
 <div class="container">
   <header class="header">
-    <h1>求人画像リサイザー</h1>
-    <div class="spec-grid">
-      <span class="spec-label">Size</span>
-      <span class="spec-value">
-        <input type="number" id="widthInput" value="320" min="1" class="spec-input"> ×
-        <input type="number" id="heightInput" value="240" min="1" class="spec-input"> px
-      </span>
-      <span class="spec-label">Max</span>
-      <span class="spec-value">
-        <input type="number" id="maxBytesInput" value="15000" min="1000" step="1000" class="spec-input spec-input-wide"> bytes
-      </span>
-      <span class="spec-label">Format</span>
-      <span class="spec-value">
-        <select id="formatInput" class="spec-select">
+    <h1 class="brand-name">クジラ<span class="accent">サイズ</span></h1>
+    <p class="tagline">画像をポイっと投げ入れて、仕様通りにリサイズ。</p>
+  </header>
+
+  <section class="settings">
+    <div class="setting">
+      <label class="setting-label">Size</label>
+      <div class="setting-input">
+        <input type="number" id="widthInput" value="320" min="1" class="num-input">
+        <span class="mult">×</span>
+        <input type="number" id="heightInput" value="240" min="1" class="num-input">
+        <span class="unit">px</span>
+      </div>
+    </div>
+    <div class="setting">
+      <label class="setting-label">Max</label>
+      <div class="setting-input">
+        <input type="number" id="maxBytesInput" value="15000" min="1000" step="1000" class="num-input num-input-wide">
+        <span class="unit">bytes</span>
+      </div>
+    </div>
+    <div class="setting">
+      <label class="setting-label">Format</label>
+      <div class="setting-input">
+        <select id="formatInput" class="select-input">
           <option value="image/jpeg">JPEG</option>
           <option value="image/webp">WEBP</option>
           <option value="image/png">PNG</option>
         </select>
-      </span>
-      <span class="spec-label">Fit</span>
-      <span class="spec-value">Center crop</span>
+      </div>
     </div>
-  </header>
+  </section>
 
   <label for="fileInput" class="dropzone" id="dropzone">
-    <div class="dropzone-icon">＋</div>
-    <div class="dropzone-text">画像をここにドロップ</div>
-    <div class="dropzone-hint">JPG / PNG / WEBP — 複数可</div>
+    <img src="whale.png" alt="" class="whale">
+    <div class="drop-primary">画像をここにドロップ</div>
+    <div class="drop-hint">JPG / PNG / WEBP — 複数可</div>
   </label>
   <input type="file" id="fileInput" accept="image/*" multiple>
 
   <section id="results" style="display:none;">
     <div class="results-header">
       <div class="results-count">
-        Processed<strong id="count">0</strong>images
+        リサイズ完了 <strong id="count">0</strong> 枚
       </div>
       <div class="actions">
         <button class="btn" id="clearBtn">クリア</button>
@@ -358,7 +420,7 @@
   </section>
 
   <footer class="footer">
-    All processing happens in your browser — images never leave your device.
+    すべての処理はブラウザ内で完結<span class="crown-dot"></span>画像がサーバーへ送信されることはありません
   </footer>
 </div>
 
@@ -418,7 +480,6 @@
   });
 
   function downloadBlob(blob, filename) {
-    // ブラウザの自動DL制限を回避するため、アンカーをDOMに追加してからclick
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -497,7 +558,7 @@
   }
 
   async function loadImage(file) {
-    // Image要素 + decode()を優先：EXIF・カラープロファイル対応が最も安定
+    // Image + decode() first — most reliable for standard formats
     const url = URL.createObjectURL(file);
     try {
       const img = new Image();
@@ -507,12 +568,10 @@
         URL.revokeObjectURL(url);
         return img;
       }
-    } catch (_) {
-      // Image要素で失敗した場合は次へ
-    }
+    } catch (_) {}
     URL.revokeObjectURL(url);
 
-    // createImageBitmapへフォールバック：変わったJPEGヘッダに強い
+    // Fall back to createImageBitmap — handles unusual JPEG headers
     if (typeof createImageBitmap === 'function') {
       try {
         const bitmap = await createImageBitmap(file);
@@ -555,7 +614,7 @@
           <div class="item-thumb"></div>
           <div class="item-info">
             <div class="item-name">${escapeHtml(item.name)}</div>
-            <div class="item-stats">処理中...</div>
+            <div class="item-stats">処理中…</div>
           </div>
           <div class="item-actions">
             <span class="item-status processing">Processing</span>
